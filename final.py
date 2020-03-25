@@ -6,16 +6,17 @@ from gi.repository import Notify
 import matplotlib.pyplot as graph
 
 
-maxIdleTime = 10 #enter the idle time in minutes
-#maxIdleTime*=60 #If you comment this line you will get seconds
+maxIdleTime = 1 #enter the idle time in minutes
+maxIdleTime*=60 #If you comment this line you will get seconds
 shiftStartTime = datetime.datetime.now()
-shiftEndTime = datetime.datetime.strptime('21:12:00', '%H:%M:%S').time() #In 24 hour format
+shiftEndTime = datetime.datetime.strptime('22:20:00', '%H:%M:%S').time() #In 24 hour format
 monitor = IdleMonitor.get_monitor()
-graphDataX = []
-graphDataY = []
+graphDataX = [datetime.datetime.now()]
+graphDataY = [0]
 filename = datetime.datetime.now()
 f= open("%s.txt"%(filename),"w+")
-graph.show()
+# graph.show()
+print("Program is running...\n")
 while True:
 	print(monitor.get_idle_time())
 	if datetime.datetime.now().time() >= shiftEndTime:
@@ -32,12 +33,12 @@ while True:
 			if monitor.get_idle_time() > totalIdledTime:
 				totalIdledTime = monitor.get_idle_time()
 			if flag1:
-				f.write("The user has been idling for %s minutes from %s to %s\n\n" % (maxIdleTime, idleStartTime, datetime.datetime.now().time()))
+				f.write("The user has been idling for %s minutes from %s to %s\n\n" % (maxIdleTime/60, idleStartTime, datetime.datetime.now().time()))
 				flag1 = 0
 				flag2 = 1
 				# notification for linux
 				Notify.init("App Name")
-				Notify.Notification.new("You have been Idling for %s minutes" %(maxIdleTime)).show()
+				Notify.Notification.new("You have been Idling for %s minutes" %(maxIdleTime/60)).show()
 	if flag2:
 		graphDataX.append(datetime.datetime.now())
 		graphDataY.append(totalIdledTime)
@@ -45,11 +46,16 @@ while True:
 		f.write("%s " % (graphDataX))
 		f.write("%s \n---------------------------------------\n" % (graphDataY))
 		Notify.uninit()
+print("\nProgram stopped running...")
 f.close
+graphDataX.append(datetime.datetime.now())
+graphDataY.append(0)
 graph.plot(graphDataX, graphDataY)
 graph.xlabel('time')
 graph.ylabel('idle')
 graph.title('Users Idle time') 
 graph.savefig('graph.png')
-print("Your shift is over")
+print("|--------------------|\n")
+print("| Your shift is over |\n")
+print("|--------------------|")
 # graph.show()
